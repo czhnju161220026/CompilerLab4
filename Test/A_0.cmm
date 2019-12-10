@@ -12,6 +12,7 @@ int g(int r)
 
 int main()
 {
+    int a[10];
     int z = 2;
     int w = f(z);
     return w;

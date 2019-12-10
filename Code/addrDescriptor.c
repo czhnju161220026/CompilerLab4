@@ -1,6 +1,7 @@
 #include "addrDescriptor.h"
+#include <stdio.h>
 
-
+int global_address = 0;
 // 初始化一个空地址描述符
 // 需要增加遍历符号表，分配内存地址，插入符号的部分
 AddrDescriptor* initAddrDescriptor(int size, HashSet* symbolTable)
@@ -15,6 +16,26 @@ AddrDescriptor* initAddrDescriptor(int size, HashSet* symbolTable)
     for (int i = 0; i < size; i++)
     {
         ad->buckets[i].head = NULL;
+    }
+
+    for (int i = 0; i < symbolTable->size; i++) {
+        Symbol* s = symbolTable->buckets[i].head;
+        while (s != NULL) {
+            if (s->symbol_type == INT_SYMBOL || s->symbol_type == ARRAY_SYMBOL) {
+                ADItem* adItem = createAdItem(s->variable);
+                Place* place = (Place*) malloc(sizeof(Place));
+                place->addrType = MEM;
+                place->memory = global_address;
+                if (s->symbol_type == INT_SYMBOL) {
+                    global_address = global_address + 4;
+                } else if (s->symbol_type == ARRAY_SYMBOL) {
+                    global_address = global_address + s->array_content->size[0] * 4;
+                }
+                adItem->place = place;
+                aDInsert(ad, adItem);
+            }
+            s = s->next;
+        }
     }
 
     return ad;
@@ -106,3 +127,28 @@ ADItem *getADItem(AddrDescriptor* ad, char *variable)
     }
     return NULL;
 }
+
+void printADItem(ADItem* adItem) {
+    if (adItem == NULL) {
+        return;
+    }
+
+    printf("Name: %s\n", adItem->variable);
+    if (adItem->place->addrType == REG) {
+        printf("REG: %s\n", adItem->place->regName);
+    } else {
+        printf("Memory: %d\n", adItem->place->memory);
+    }
+}
+
+void printAddrDescriptor(AddrDescriptor* ad) {
+    for (int i = 0; i < ad->size; i++) {
+        ADItem* item = ad->buckets[i].head;
+        while (item != NULL) {
+            printf("----------------------------------------------------\n");
+            printADItem(item);
+            item = item->next;
+        }
+    }
+}
+

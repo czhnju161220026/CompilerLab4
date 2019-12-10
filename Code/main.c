@@ -43,13 +43,16 @@ int main(int argc, char **argv)
             //printTotalGrammarTree(root, 0);
             handleProgram(root);
             //outputLog(SemanticAnalysisLog);
-            outputHashSet(symbolTable);
+            //outputHashSet(symbolTable);
             outputLog(SemanticError);
             char* code = translateProgram(root, symbolTable);
             // printf("%s", code);
             // FILE* ir_code= fopen(argv[2], "w");
             // fprintf(ir_code, "%s", code);
             // fclose(ir_code);
+            outputHashSet(symbolTable);
+            AddrDescriptor* ad = initAddrDescriptor(HASH_SIZE, symbolTable);
+            printAddrDescriptor(ad);
             Function* functions = splitIntoFunctions(code);
             char* asmCode = generateCode(functions);
             printf("%s", asmCode);
