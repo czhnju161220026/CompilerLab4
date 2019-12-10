@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "intermediate.h"
 #include "addrDescriptor.h"
+#include "generateCode.h"
 extern void yyrestart(FILE *);
 extern void yyparse(void);
 extern Morpheme *root;
@@ -50,14 +51,8 @@ int main(int argc, char **argv)
             // fprintf(ir_code, "%s", code);
             // fclose(ir_code);
             Function* functions = splitIntoFunctions(code);
-            for(Function* f = functions; f != NULL; f = f->next)
-            {
-                printf("----------------a function----------------\n");
-                for(Line* line = f->lines; line != NULL; line = line ->next)
-                {
-                    printf("%s\n", line->content);
-                }
-            }
+            char* asmCode = generateCode(functions);
+            printf("%s", asmCode);
         }
         destructMorpheme(root);
         fclose(f);
