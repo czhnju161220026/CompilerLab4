@@ -26,12 +26,13 @@ AddrDescriptor* initAddrDescriptor(int size, HashSet* symbolTable)
                 Place* place = (Place*) malloc(sizeof(Place));
                 place->addrType = MEM;
                 place->memory = global_address;
+                place->next = NULL;
+                adItem->place = place;
                 if (s->symbol_type == INT_SYMBOL) {
                     global_address = global_address + 4;
                 } else if (s->symbol_type == ARRAY_SYMBOL) {
                     global_address = global_address + s->array_content->size[0] * 4;
                 }
-                adItem->place = place;
                 aDInsert(ad, adItem);
             }
             s = s->next;
@@ -134,11 +135,16 @@ void printADItem(ADItem* adItem) {
     }
 
     printf("Name: %s\n", adItem->variable);
-    if (adItem->place->addrType == REG) {
-        printf("REG: %s\n", adItem->place->regName);
-    } else {
-        printf("Memory: %d\n", adItem->place->memory);
+    Place* p = adItem->place;
+    while (p != NULL) {
+        if (p->addrType == REG) {
+            printf("REG: %s\n", p->regName);
+        } else {
+            printf("Memory: %d\n", p->memory);
+        }
+        p = p->next;
     }
+    
 }
 
 void printAddrDescriptor(AddrDescriptor* ad) {
