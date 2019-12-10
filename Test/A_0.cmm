@@ -1,0 +1,18 @@
+int f(int x)
+{
+    int y = 0;
+    y = x*x;
+    return y;
+}
+
+int g(int r)
+{
+    return r+1;
+}
+
+int main()
+{
+    int z = 2;
+    int w = f(z);
+    return w;
+}

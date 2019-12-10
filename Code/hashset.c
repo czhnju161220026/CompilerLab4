@@ -84,7 +84,6 @@ Symbol *get(HashSet *hashSet, char *name)
         }
         head = head->next;
     }
-
     return NULL;
 }
 
