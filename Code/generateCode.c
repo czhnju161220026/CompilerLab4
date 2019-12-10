@@ -85,18 +85,21 @@ char *handleLine(Line *line)
     else
     {
         Notation *_1stNotation = getNotation(notations, 0);
+        // Label x
         if (strcmp(_1stNotation->content, "LABEL") == 0 || strcmp(_1stNotation->content, "FUNCTION") == 0)
         {
             result = (char *)malloc(strlen(_2ndNotation->content));
             strcpy(result, _2ndNotation->content);
             result = concat(2, result, ":\n");
         }
+        // GOTO x
         else if (strcmp(_1stNotation->content, "GOTO") == 0)
         {
             result = (char *)malloc(strlen(_2ndNotation->content));
             strcpy(result, _2ndNotation->content);
             result = concat(3, "  j ", result, "\n");
         }
+        // Return x
         else if (strcmp(_1stNotation->content, "RETURN") == 0)
         {
             char *ret = _2ndNotation->content;
@@ -112,6 +115,7 @@ char *handleLine(Line *line)
                 result = concat(3, "  move $v0, ", reg, "\n  jr $ra\n");
             }
         }
+        // IF 
         else if (strcmp(_1stNotation->content, "IF") == 0)
         {
             result = "  --condition statement--\n";
