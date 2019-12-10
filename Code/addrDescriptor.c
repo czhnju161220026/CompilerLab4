@@ -138,7 +138,7 @@ void printADItem(ADItem* adItem) {
     Place* p = adItem->place;
     while (p != NULL) {
         if (p->addrType == REG) {
-            printf("REG: %s\n", p->regName);
+            printf("REG: $%d\n", p->regName);
         } else {
             printf("Memory: %d\n", p->memory);
         }
