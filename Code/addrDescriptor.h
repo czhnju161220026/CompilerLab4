@@ -47,6 +47,8 @@ ADItem* createAdItem(char* variable);
 bool aDContains(AddrDescriptor* ad, char* variable);
 bool aDInsert(AddrDescriptor* ad, ADItem* item);
 ADItem* getADItem(AddrDescriptor* ad, char* variable);
+void printAddrDescriptor(AddrDescriptor* ad);
+void printADItem(ADItem* adItem);
 
 
 #endif

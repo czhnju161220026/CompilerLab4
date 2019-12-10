@@ -42,7 +42,7 @@ int main(int argc, char **argv)
             //printTotalGrammarTree(root, 0);
             handleProgram(root);
             //outputLog(SemanticAnalysisLog);
-            outputHashSet(symbolTable);
+            //outputHashSet(symbolTable);
             outputLog(SemanticError);
             char* code = translateProgram(root, symbolTable);
             // printf("%s", code);
@@ -58,6 +58,9 @@ int main(int argc, char **argv)
                     printf("%s\n", line->content);
                 }
             }
+            outputHashSet(symbolTable);
+            AddrDescriptor* ad = initAddrDescriptor(HASH_SIZE, symbolTable);
+            printAddrDescriptor(ad);
         }
         destructMorpheme(root);
         fclose(f);
