@@ -7,7 +7,13 @@ int f(int x)
 
 int g(int r)
 {
-    return r+1;
+    if(r>0){
+        r = r-1;
+    }
+    else {
+        r = r - 2;
+    }
+    return r;
 }
 
 int main()

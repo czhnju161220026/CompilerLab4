@@ -16,7 +16,7 @@ typedef struct Place
 {
     AddrType addrType;
     union {
-        char *regName;
+        int regName;
         int memory;
     };
     struct Place* next;

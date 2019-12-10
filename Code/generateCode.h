@@ -14,5 +14,7 @@ char* handleFunction(Function* function);
 char* handleLine(Line* line); 
 Notation* parserLine(char* content);
 Notation* createNotation(char* content);
-
+Notation* getNotation(Notation* notation, int index);
+int numNotations(Notation* notation);
+char* getReg(char* name, char** reg);
 #endif
