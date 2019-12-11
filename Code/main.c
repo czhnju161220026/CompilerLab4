@@ -8,13 +8,13 @@
 #include "intermediate.h"
 #include "addrDescriptor.h"
 #include "generateCode.h"
+#include "regDescriptor.h"
 extern void yyrestart(FILE *);
 extern void yyparse(void);
 extern Morpheme *root;
 extern int syntax_correct;
 extern int lexical_correct;
 extern HashSet *symbolTable;
-
 extern Function* globolFunctions;
 
 int main(int argc, char **argv)
@@ -39,6 +39,7 @@ int main(int argc, char **argv)
         if (syntax_correct && lexical_correct)
         {
             symbolTable = initializeHashSet(HASH_SIZE);
+            globalRegDescriptor = createRegDescriptor();
             addReadAndWrite(symbolTable);
             SemanticAnalysisLog = initLog();
             SemanticError = initLog();

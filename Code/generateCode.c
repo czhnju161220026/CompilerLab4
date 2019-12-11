@@ -22,6 +22,7 @@ char *handleFunction(Function *function, AddrDescriptor* localAD)
     //TODO: implement
     for (Line *line = function->lines; line != NULL; line = line->next)
     {
+        outputLine(line);
         result = concat(2, result, handleLine(line, localAD));
     }
     return result;
@@ -118,9 +119,11 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
             {
                 char *regx, *regy;
                 char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                char* temp2 = getReg(_3rdNotation->content, &regy, localAD);
-                result = concat(5,"  move ", regx, ", ", regy, "\n");
-                result = concat(3, temp1, temp2, result);
+                ADItem* item = getADItem(localAD, _3rdNotation->content + 1);
+                char temp[16];
+                sprintf(temp, "%d", item->offset);
+                result = concat(6,"  addi ", regx, ", ", "$sp, ", temp, "\n");
+                result = concat(2, temp1, result);
             }
             // x := y
             else
