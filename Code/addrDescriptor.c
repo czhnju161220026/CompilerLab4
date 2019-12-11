@@ -41,7 +41,7 @@ AddrDescriptor* initAddrDescriptor(int size)
 ADItem* createAdItem(char* variable)
 {
     ADItem* item = (ADItem*)malloc(sizeof(ADItem));
-    item->variable = (char*)malloc(strlen(variable));
+    item->variable = (char*)malloc(strlen(variable)+1);
     strcpy(item->variable, variable);
     item->next = NULL;
     item->place = NULL;

@@ -85,7 +85,7 @@ Function *splitIntoFunctions(char *code)
                     function = (Function *)malloc(sizeof(Function));
                     tail = function;
                     function->lines = (Line *)malloc(sizeof(Line));
-                    function->lines->content = (char *)malloc(strlen(line));
+                    function->lines->content = (char *)malloc(strlen(line)+1);
                     strcpy(function->lines->content, line);
                     currentFunction = function->lines;
                 }
@@ -95,7 +95,7 @@ Function *splitIntoFunctions(char *code)
                     tail->next = newFunction;
                     tail = newFunction;
                     newFunction->lines = (Line *)malloc(sizeof(Line));
-                    newFunction->lines->content = (char *)malloc(strlen(line));
+                    newFunction->lines->content = (char *)malloc(strlen(line)+1);
                     strcpy(newFunction->lines->content, line);
                     currentFunction = newFunction->lines;
                 }
@@ -103,7 +103,7 @@ Function *splitIntoFunctions(char *code)
             else
             {
                 Line *newLine = (Line *)malloc(sizeof(Line));
-                newLine->content = (char *)malloc(strlen(line));
+                newLine->content = (char *)malloc(strlen(line)+1);
                 strcpy(newLine->content, line);
                 currentFunction->next = newLine;
                 currentFunction = newLine;
@@ -112,15 +112,15 @@ Function *splitIntoFunctions(char *code)
         else
         {
             Line *newLine = (Line *)malloc(sizeof(Line));
-            newLine->content = (char *)malloc(strlen(line));
+            newLine->content = (char *)malloc(strlen(line)+1);
             strcpy(newLine->content, line);
             currentFunction->next = newLine;
             currentFunction = newLine;
         }
     }
-    for(Function* f = function; f != NULL; f = f->next)
+    for (Function *f = function; f != NULL; f = f->next)
     {
-        for(Line* l = f->lines; l != NULL; l = l->next)
+        for (Line *l = f->lines; l != NULL; l = l->next)
         {
             l->notations = parserLine(l->content);
         }
@@ -135,7 +135,7 @@ void outputFunction(Function *f)
     printf("--------Space Requried: %d--------\n", f->spaceRequired);
     for (Line *line = f->lines; line != NULL; line = line->next)
     {
-        for(Notation* notation = line->notations; notation!=NULL; notation = notation->next)
+        for (Notation *notation = line->notations; notation != NULL; notation = notation->next)
         {
             printf("%s ", notation->content);
         }
@@ -143,6 +143,14 @@ void outputFunction(Function *f)
     }
 }
 
+void outputLine(Line *line)
+{
+    for (Notation *notation = line->notations; notation != NULL; notation = notation->next)
+    {
+        printf("%s ", notation->content);
+    }
+    printf("\n");
+}
 
 Notation *parserLine(char *content)
 {

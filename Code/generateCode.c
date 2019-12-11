@@ -36,8 +36,7 @@ AddrDescriptor* analyzeFunction(Function* function)
 {
     int spaceRequired = 0;
     AddrDescriptor* localAD = initAddrDescriptor(HASH_SIZE);
-    Line* lines = function->lines;
-    for(Line* line = lines; line != NULL; line = line->next)
+    for(Line* line = function->lines; line != NULL; line = line->next)
     {
         Notation* notations = line->notations;
         Notation* _1stNotation = getNotation(notations, 0);
@@ -77,9 +76,10 @@ AddrDescriptor* analyzeFunction(Function* function)
 
 char *handleLine(Line *line, AddrDescriptor* localAD)
 {
-    char *result = "";
+    char *result="";
     //TODO: implement
     Notation *notations = line->notations;
+    
     Notation *_2ndNotation = getNotation(notations, 1);
     if (strcmp(_2ndNotation->content, ":=") == 0)
     {
@@ -234,14 +234,14 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
         // Label x
         if (strcmp(_1stNotation->content, "LABEL") == 0 || strcmp(_1stNotation->content, "FUNCTION") == 0)
         {
-            result = (char *)malloc(strlen(_2ndNotation->content));
+            result = (char *)malloc(strlen(_2ndNotation->content)+1);
             strcpy(result, _2ndNotation->content);
             result = concat(2, result, ":\n");
         }
         // GOTO x
         else if (strcmp(_1stNotation->content, "GOTO") == 0)
         {
-            result = (char *)malloc(strlen(_2ndNotation->content));
+            result = (char *)malloc(strlen(_2ndNotation->content)+1);
             strcpy(result, _2ndNotation->content);
             result = concat(3, "  j ", result, "\n");
         }
@@ -304,7 +304,6 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
             result = concat(3, temp1, temp2, result);
         }
     }
-
     return result;
 }
 
