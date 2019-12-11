@@ -8,8 +8,8 @@ char *generateCode(Function *functions)
     for (Function *f = functions; f != NULL; f = f->next)
     {
         AddrDescriptor* localAD = analyzeFunction(f);
-        //outputFunction(f);
-        //printAddrDescriptor(localAD);
+        outputFunction(f);
+        printAddrDescriptor(localAD);
         result = concat(2, result, handleFunction(f, localAD));
         // freeAddrDescriptor(localAD);
     }
@@ -23,7 +23,6 @@ char *handleFunction(Function *function, AddrDescriptor* localAD)
     //TODO: implement
     for (Line *line = function->lines; line != NULL; line = line->next)
     {
-        printf("hit here111.\n");
         result = concat(2, result, handleLine(line, localAD));
     }
     return result;
@@ -79,8 +78,6 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
 {
     char *result="";
     //TODO: implement
-    printf("Handleline: ");
-    outputLine(line);
     Notation *notations = line->notations;
     
     Notation *_2ndNotation = getNotation(notations, 1);
@@ -237,14 +234,14 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
         // Label x
         if (strcmp(_1stNotation->content, "LABEL") == 0 || strcmp(_1stNotation->content, "FUNCTION") == 0)
         {
-            result = (char *)malloc(strlen(_2ndNotation->content));
+            result = (char *)malloc(strlen(_2ndNotation->content)+1);
             strcpy(result, _2ndNotation->content);
             result = concat(2, result, ":\n");
         }
         // GOTO x
         else if (strcmp(_1stNotation->content, "GOTO") == 0)
         {
-            result = (char *)malloc(strlen(_2ndNotation->content));
+            result = (char *)malloc(strlen(_2ndNotation->content)+1);
             strcpy(result, _2ndNotation->content);
             result = concat(3, "  j ", result, "\n");
         }
@@ -307,7 +304,6 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
             result = concat(3, temp1, temp2, result);
         }
     }
-    printf("ret\n");
     return result;
 }
 
