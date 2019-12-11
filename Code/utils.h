@@ -25,6 +25,7 @@ typedef struct Function {
 
 Function* splitIntoFunctions(char* code);
 void outputFunction(Function* f);
+void outputLine(Line* line);
 Notation* parserLine(char* content);
 Notation* createNotation(char* content);
 
