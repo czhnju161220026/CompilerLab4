@@ -43,7 +43,7 @@ typedef struct AddrDescriptor
 
 //构造函数
 AddrDescriptor* initAddrDescriptor(int size);
-// void freeAddrDescriptor(AddrDescriptor* ad);
+void freeAddrDescriptor(AddrDescriptor* ad);
 ADItem* createAdItem(char* variable);
 void setOffset(ADItem* item, int offset);
 //功能函数
