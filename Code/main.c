@@ -15,6 +15,8 @@ extern int syntax_correct;
 extern int lexical_correct;
 extern HashSet *symbolTable;
 
+extern Function* globolFunctions;
+
 int main(int argc, char **argv)
 {
     // if (argc <= 2)
@@ -46,16 +48,15 @@ int main(int argc, char **argv)
             //outputHashSet(symbolTable);
             outputLog(SemanticError);
             char* code = translateProgram(root, symbolTable);
-            printf("%s", code);
-            printf("------------------------------------------------\n");
+            //printf("%s", code);
+            //printf("------------------------------------------------\n");
             // FILE* ir_code= fopen(argv[2], "w");
             // fprintf(ir_code, "%s", code);
             // fclose(ir_code);
             // outputHashSet(symbolTable);
-            AddrDescriptor* ad = initAddrDescriptor(HASH_SIZE, symbolTable);
             // printAddrDescriptor(ad);
-            Function* functions = splitIntoFunctions(code);
-            char* asmCode = generateCode(functions);
+            globolFunctions = splitIntoFunctions(code);
+            char* asmCode = generateCode(globolFunctions);
             printf("%s", asmCode);
         }
         destructMorpheme(root);
