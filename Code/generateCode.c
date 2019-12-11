@@ -13,7 +13,6 @@ char *generateCode(Function *functions)
         result = concat(2, result, handleFunction(f, localAD));
         // freeAddrDescriptor(localAD);
     }
-    for (Function *f = functions; f != NULL; f = f->next)
     return result;
 }
 
