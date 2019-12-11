@@ -21,5 +21,5 @@ RegDescriptor* createRegDescriptor();
 bool isRegFree(Register* reg);
 char* saveRegister(Register* reg, AddrDescriptor* localAD);
 bool isInReg(Register* reg, char* name);
-char* cleanReg(Register* reg, AddrDescriptor* localAD);
+char* writeBackReg(Register* reg, AddrDescriptor* localAD);
 #endif

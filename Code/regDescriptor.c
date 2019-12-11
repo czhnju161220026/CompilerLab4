@@ -56,7 +56,7 @@ char *getReg(char *name, char **reg, AddrDescriptor* localAD)
     Register* p_reg = &(globalRegDescriptor->registers[globalRegDescriptor->index]);
     globalRegDescriptor->index = (globalRegDescriptor->index + 1) % 8;
     //踢出旧值
-    char* code1 = cleanReg(p_reg, localAD);
+    char* code1 = writeBackReg(p_reg, localAD);
     //载入新值
     ADItem* adItem = getADItem(localAD, name);
     sprintf(str, "  lw $t%d, %d($sp)\n", p_reg->index, adItem->offset);
@@ -75,7 +75,7 @@ char *getReg(char *name, char **reg, AddrDescriptor* localAD)
     return "";
 }
 
-char* cleanReg(Register* reg, AddrDescriptor* localAD) {
+char* writeBackReg(Register* reg, AddrDescriptor* localAD) {
     char* oldName = reg->head->content;
     ADItem* adItem = getADItem(localAD, oldName);
     if (adItem != NULL) {
