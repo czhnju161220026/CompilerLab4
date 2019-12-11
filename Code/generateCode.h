@@ -5,16 +5,12 @@
 #include "addrDescriptor.h"
 #include "regDescriptor.h"
 
-typedef struct Notation {
-    char* content;
-    struct Notation* next;
-} Notation;
+Function* globolFunctions;
 
 char* generateCode(Function* functions);
-char* handleFunction(Function* function);
-char* handleLine(Line* line); 
-Notation* parserLine(char* content);
-Notation* createNotation(char* content);
+AddrDescriptor* analyzeFunction(Function* function);
+char* handleFunction(Function* function, AddrDescriptor* localAD);
+char* handleLine(Line* line, AddrDescriptor* localAD); 
 Notation* getNotation(Notation* notation, int index);
 int numNotations(Notation* notation);
 #endif
