@@ -3,6 +3,7 @@
 #include <string.h>
 #include "utils.h"
 #include "addrDescriptor.h"
+#include "regDescriptor.h"
 
 typedef struct Notation {
     char* content;
@@ -16,5 +17,4 @@ Notation* parserLine(char* content);
 Notation* createNotation(char* content);
 Notation* getNotation(Notation* notation, int index);
 int numNotations(Notation* notation);
-char* getReg(char* name, char** reg);
 #endif

@@ -25,6 +25,7 @@ typedef struct Place
 typedef struct ADItem
 {
     char *variable;
+    int offset; //栈顶偏移量
     Place *place;
     struct ADItem* next;
 } ADItem;

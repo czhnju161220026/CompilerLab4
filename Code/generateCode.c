@@ -61,10 +61,11 @@ char *handleLine(Line *line)
             // x := &y
             else if (_3rdNotation->content[0] == '&')
             {
-                result = "  TODO: x := &y";   
+                result = "  TODO: x := &y\n";
             }
             // x := y
-            else {
+            else
+            {
                 char *regx, *regy;
                 getReg(_1stNotation->content, &regx);
                 getReg(_3rdNotation->content, &regy);
@@ -72,14 +73,89 @@ char *handleLine(Line *line)
             }
         }
         //Var1 := Var2 op Var3
+        //也可能有立即数参与
         else if (numNotations(notations) == 5)
         {
-            result = "  TODO: Var1 := Var2 op Var3\n";  
+            //result = "  TODO: Var1 := Var2 op Var3\n";
+            Notation *_1stNotation = getNotation(notations, 0); //Var1
+            Notation *_3rdNotation = getNotation(notations, 2); // Var2
+            Notation *_4thNotation = getNotation(notations, 3); // op
+            Notation *_5thNotation = getNotation(notations, 4); // Var3
+            // Var1 := Var2 * Var3
+            if(strcmp(_4thNotation->content, "*") == 0 )
+            {
+                char *regx, *regy, *regz;
+                getReg(_1stNotation->content, &regx);
+                getReg(_3rdNotation->content, &regy);
+                getReg(_5thNotation->content, &regz);
+                result = concat(7,"  mul ", regx, ", ", regy, ", ", regz, "\n");
+            }
+            // // Var1 := Var2 / Var3
+            else if(strcmp(_4thNotation->content, "/") == 0)
+            {
+                char *regx, *regy, *regz;
+                getReg(_1stNotation->content, &regx);
+                getReg(_3rdNotation->content, &regy);
+                getReg(_5thNotation->content, &regz);
+                result = concat(7, "  div ", regy, ", ", regz, "\n  mflo ", regx, "\n");
+            }
+            // Var1 := Var2 + Var3
+            else if(strcmp(_4thNotation->content, "+") == 0){
+                if(_3rdNotation->content[0] == '#')
+                {
+                    char* regx, *regy;
+                    getReg(_1stNotation->content, &regx);
+                    getReg(_5thNotation->content, &regy);
+                    result = concat(7,"  addi ", regx, ", ", regy, ", ", _3rdNotation->content + 1, "\n");
+                }
+                else if(_5thNotation->content[0] == '#')
+                {
+                    char* regx, *regy;
+                    getReg(_1stNotation->content, &regx);
+                    getReg(_3rdNotation->content, &regy);
+                    result = concat(7,"  addi ", regx, ", ", regy, ", ", _5thNotation->content + 1, "\n");
+                }
+                else {
+                    char *regx, *regy, *regz;
+                    getReg(_1stNotation->content, &regx);
+                    getReg(_3rdNotation->content, &regy);
+                    getReg(_5thNotation->content, &regz);
+                    result = concat(7,"  add ", regx, ", ", regy, ", ", regz, "\n");
+                }
+            }
+            else if(strcmp(_4thNotation->content, "-") == 0){
+                if(_3rdNotation->content[0] == '#')
+                {
+                    char* regx, *regy;
+                    getReg(_1stNotation->content, &regx);
+                    getReg(_5thNotation->content, &regy);
+                    result = concat(7,"  addi ", regx, ", ", regy, ", -", _3rdNotation->content + 1, "\n");
+                }
+                else if(_5thNotation->content[0] == '#')
+                {
+                    char* regx, *regy;
+                    getReg(_1stNotation->content, &regx);
+                    getReg(_3rdNotation->content, &regy);
+                    result = concat(7,"  addi ", regx, ", ", regy, ", -", _5thNotation->content + 1, "\n");
+                }
+                else {
+                    char *regx, *regy, *regz;
+                    getReg(_1stNotation->content, &regx);
+                    getReg(_3rdNotation->content, &regy);
+                    getReg(_5thNotation->content, &regz);
+                    result = concat(7,"  sub ", regx, ", ", regy, ", ", regz, "\n");
+                }
+            }
         }
         // Var1 := call Function
         else if (numNotations(notations) == 4)
         {
-            result = "  TODO: ar1 := call Function\n"; 
+            //result = "  TODO: ar1 := call Function\n";
+            Notation *_1stNotation = getNotation(notations, 0); //Var1
+            Notation *_4thNotation = getNotation(notations, 3); //Function
+            char* regx;
+            getReg(_1stNotation->content, &regx);
+            result = concat(5, "  jal ", _4thNotation->content, "\n  move ", regx, ", $v0\n");
         }
     }
     else
@@ -115,10 +191,45 @@ char *handleLine(Line *line)
                 result = concat(3, "  move $v0, ", reg, "\n  jr $ra\n");
             }
         }
-        // IF 
+        // IF x relop y GOTO z
         else if (strcmp(_1stNotation->content, "IF") == 0)
         {
-            result = "  --condition statement--\n";
+            //TODO: 比较数可能是一个立即数
+            //result = "  --condition statement--\n";
+            Notation *_2ndNotation = getNotation(notations, 1); //x
+            Notation *_3rdNotation = getNotation(notations, 2); //relop
+            Notation *_4thNotation = getNotation(notations, 3); //y
+            Notation *_6thNotation = getNotation(notations, 5); //z
+            char *branch = "";
+            if (strcmp(_3rdNotation->content, "==") == 0)
+            {
+                branch = "  beq ";
+            }
+            else if (strcmp(_3rdNotation->content, "!=") == 0)
+            {
+                branch = "  bne ";
+            }
+            else if (strcmp(_3rdNotation->content, ">") == 0)
+            {
+                branch = "  bgt ";
+            }
+            else if (strcmp(_3rdNotation->content, "<") == 0)
+            {
+                branch = "  blt ";
+            }
+            else if (strcmp(_3rdNotation->content, ">=") == 0)
+            {
+                branch = "  bge ";
+            }
+            else if (strcmp(_3rdNotation->content, "<=") == 0)
+            {
+                branch = "  ble ";
+            }
+
+            char *regx, *regy;
+            getReg(_2ndNotation->content, &regx);
+            getReg(_4thNotation->content, &regy);
+            result = concat(7, branch, regx, ", ", regy, ", ", _6thNotation->content, "\n");
         }
     }
 
@@ -172,16 +283,6 @@ Notation *getNotation(Notation *notation, int index)
         }
     }
     return p;
-}
-
-//目前的getReg简单地通过reg返回“reg(name)”
-char *getReg(char *name, char **reg)
-{
-    char *targetReg = "";
-    targetReg = concat(3, "reg(", name, ")");
-    *reg = (char *)malloc(strlen(targetReg));
-    strcpy(*reg, targetReg);
-    return "";
 }
 
 int numNotations(Notation *notation)

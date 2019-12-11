@@ -2,6 +2,8 @@ int f(int x)
 {
     int y = 0;
     y = x*x;
+    y = 1 + y;
+    y = 1+1+y*2;
     return y;
 }
 
