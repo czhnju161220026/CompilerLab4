@@ -20,22 +20,19 @@ AddrDescriptor* initAddrDescriptor(int size)
 }
 
 // 释放一个地址描述符所占的空间
-// void freeAddrDescriptor(AddrDescriptor* ad) {
-//     if(ad == NULL)
-//     {
-//         return;
-//     }
-//     ADBucket* buckets = ad->buckets;
-//     for(int i = 0; i < ad->size; i++)
-//     {
-//         for(ADItem* item = buckets[i].head; item != NULL; item = item->next)
-//         {
-//             free(item);
-//         }
-//     }
-//     free(ad->buckets);
-//     free(ad);
-// }
+void freeAddrDescriptor(AddrDescriptor* ad) {
+    if(ad == NULL)
+    {
+        return;
+    }
+    ADBucket* buckets = ad->buckets;
+    for(int i = 0; i < ad->size; i++)
+    {
+        buckets[i].head = NULL;
+    }
+    free(ad->buckets);
+    free(ad);
+}
 
 //一个表项的构造函数
 ADItem* createAdItem(char* variable)
