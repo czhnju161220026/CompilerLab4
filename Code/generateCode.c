@@ -39,24 +39,27 @@ char *handleLine(Line *line)
             if (_1stNotation->content[0] == '*')
             {
                 char *regx, *regy;
-                getReg(_1stNotation->content + 1, &regx);
-                getReg(_3rdNotation->content, &regy);
+                char* temp1 = getReg(_1stNotation->content + 1, &regx);
+                char* temp2 = getReg(_3rdNotation->content, &regy);
                 result = concat(5, "  sw ", regy, ", 0(", regx, ")\n");
+                result = concat(3, temp1, temp2, result);
             }
             // x := #k
             else if (_3rdNotation->content[0] == '#')
             {
                 char *regx;
-                getReg(_1stNotation->content, &regx);
+                char* temp1 = getReg(_1stNotation->content, &regx);
                 result = concat(5, "  li ", regx, ", ", _3rdNotation->content + 1, "\n");
+                result = concat(2, temp1, result);
             }
             // x := *y
             else if (_3rdNotation->content[0] == '*')
             {
                 char *regx, *regy;
-                getReg(_1stNotation->content, &regx);
-                getReg(_3rdNotation->content + 1, &regy);
+                char* temp1 = getReg(_1stNotation->content, &regx);
+                char* temp2 = getReg(_3rdNotation->content + 1, &regy);
                 result = concat(5, "  lw ", regx, "0(", regy, ")\n");
+                result = concat(3, temp1, temp2, result);
             }
             // x := &y
             else if (_3rdNotation->content[0] == '&')
@@ -67,9 +70,10 @@ char *handleLine(Line *line)
             else
             {
                 char *regx, *regy;
-                getReg(_1stNotation->content, &regx);
-                getReg(_3rdNotation->content, &regy);
+                char* temp1 = getReg(_1stNotation->content, &regx);
+                char* temp2 = getReg(_3rdNotation->content, &regy);
                 result = concat(5, "  move ", regx, ", ", regy, "\n");
+                result = concat(3, temp1, temp2, result);
             }
         }
         //Var1 := Var2 op Var3
@@ -85,65 +89,73 @@ char *handleLine(Line *line)
             if(strcmp(_4thNotation->content, "*") == 0 )
             {
                 char *regx, *regy, *regz;
-                getReg(_1stNotation->content, &regx);
-                getReg(_3rdNotation->content, &regy);
-                getReg(_5thNotation->content, &regz);
+                char* temp1 = getReg(_1stNotation->content, &regx);
+                char* temp2 = getReg(_3rdNotation->content, &regy);
+                char* temp3 = getReg(_5thNotation->content, &regz);
                 result = concat(7,"  mul ", regx, ", ", regy, ", ", regz, "\n");
+                result = concat(4, temp1, temp2, temp3, result);
             }
             // // Var1 := Var2 / Var3
             else if(strcmp(_4thNotation->content, "/") == 0)
             {
                 char *regx, *regy, *regz;
-                getReg(_1stNotation->content, &regx);
-                getReg(_3rdNotation->content, &regy);
-                getReg(_5thNotation->content, &regz);
+                char* temp1 = getReg(_1stNotation->content, &regx);
+                char* temp2 = getReg(_3rdNotation->content, &regy);
+                char* temp3 = getReg(_5thNotation->content, &regz);
                 result = concat(7, "  div ", regy, ", ", regz, "\n  mflo ", regx, "\n");
+                result = concat(4, temp1, temp2, temp3, result);
             }
             // Var1 := Var2 + Var3
             else if(strcmp(_4thNotation->content, "+") == 0){
                 if(_3rdNotation->content[0] == '#')
                 {
                     char* regx, *regy;
-                    getReg(_1stNotation->content, &regx);
-                    getReg(_5thNotation->content, &regy);
+                    char* temp1 = getReg(_1stNotation->content, &regx);
+                    char* temp2 = getReg(_5thNotation->content, &regy);
                     result = concat(7,"  addi ", regx, ", ", regy, ", ", _3rdNotation->content + 1, "\n");
+                    result = concat(3, temp1, temp2, result);
                 }
                 else if(_5thNotation->content[0] == '#')
                 {
                     char* regx, *regy;
-                    getReg(_1stNotation->content, &regx);
-                    getReg(_3rdNotation->content, &regy);
+                    char* temp1 = getReg(_1stNotation->content, &regx);
+                    char* temp2 = getReg(_3rdNotation->content, &regy);
                     result = concat(7,"  addi ", regx, ", ", regy, ", ", _5thNotation->content + 1, "\n");
+                    result = concat(3, temp1, temp2, result);
                 }
                 else {
                     char *regx, *regy, *regz;
-                    getReg(_1stNotation->content, &regx);
-                    getReg(_3rdNotation->content, &regy);
-                    getReg(_5thNotation->content, &regz);
+                    char* temp1 = getReg(_1stNotation->content, &regx);
+                    char* temp2 = getReg(_3rdNotation->content, &regy);
+                    char* temp3 = getReg(_5thNotation->content, &regz);
                     result = concat(7,"  add ", regx, ", ", regy, ", ", regz, "\n");
+                    result = concat(4, temp1, temp2, temp3, result);
                 }
             }
             else if(strcmp(_4thNotation->content, "-") == 0){
                 if(_3rdNotation->content[0] == '#')
                 {
                     char* regx, *regy;
-                    getReg(_1stNotation->content, &regx);
-                    getReg(_5thNotation->content, &regy);
+                    char* temp1 = getReg(_1stNotation->content, &regx);
+                    char* temp2 = getReg(_5thNotation->content, &regy);
                     result = concat(7,"  addi ", regx, ", ", regy, ", -", _3rdNotation->content + 1, "\n");
+                    result = concat(3, temp1, temp2, result);
                 }
                 else if(_5thNotation->content[0] == '#')
                 {
                     char* regx, *regy;
-                    getReg(_1stNotation->content, &regx);
-                    getReg(_3rdNotation->content, &regy);
+                    char* temp1 = getReg(_1stNotation->content, &regx);
+                    char* temp2 = getReg(_3rdNotation->content, &regy);
                     result = concat(7,"  addi ", regx, ", ", regy, ", -", _5thNotation->content + 1, "\n");
+                    result = concat(3, temp1, temp2, result);
                 }
                 else {
                     char *regx, *regy, *regz;
-                    getReg(_1stNotation->content, &regx);
-                    getReg(_3rdNotation->content, &regy);
-                    getReg(_5thNotation->content, &regz);
+                    char* temp1 = getReg(_1stNotation->content, &regx);
+                    char* temp2 = getReg(_3rdNotation->content, &regy);
+                    char* temp3 = getReg(_5thNotation->content, &regz);
                     result = concat(7,"  sub ", regx, ", ", regy, ", ", regz, "\n");
+                    result = concat(4, temp1, temp2, temp3, result);
                 }
             }
         }
@@ -154,8 +166,9 @@ char *handleLine(Line *line)
             Notation *_1stNotation = getNotation(notations, 0); //Var1
             Notation *_4thNotation = getNotation(notations, 3); //Function
             char* regx;
-            getReg(_1stNotation->content, &regx);
+            char* temp1 = getReg(_1stNotation->content, &regx);
             result = concat(5, "  jal ", _4thNotation->content, "\n  move ", regx, ", $v0\n");
+            result = concat(2, temp1, result);
         }
     }
     else
@@ -187,8 +200,9 @@ char *handleLine(Line *line)
             {
                 //TODO
                 char *reg = "";
-                getReg(ret, &reg);
+                char* temp1 = getReg(ret, &reg);
                 result = concat(3, "  move $v0, ", reg, "\n  jr $ra\n");
+                result = concat(2, temp1, result);
             }
         }
         // IF x relop y GOTO z
@@ -227,9 +241,10 @@ char *handleLine(Line *line)
             }
 
             char *regx, *regy;
-            getReg(_2ndNotation->content, &regx);
-            getReg(_4thNotation->content, &regy);
+            char* temp1 = getReg(_2ndNotation->content, &regx);
+            char* temp2 = getReg(_4thNotation->content, &regy);
             result = concat(7, branch, regx, ", ", regy, ", ", _6thNotation->content, "\n");
+            result = concat(3, temp1, temp2, result);
         }
     }
 
