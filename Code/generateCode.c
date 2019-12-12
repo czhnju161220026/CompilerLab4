@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 Function *currentFunc = NULL;
+int argCount = 0;
+int paramCount = 0;
 
 char *generateCode(Function *functions)
 {
@@ -11,8 +13,8 @@ char *generateCode(Function *functions)
     for (Function *f = functions; f != NULL; f = f->next)
     {
         AddrDescriptor *localAD = analyzeFunction(f);
-        outputFunction(f);
-        printAddrDescriptor(localAD);
+        //outputFunction(f);
+        //printAddrDescriptor(localAD);
         result = concat(2, result, handleFunction(f, localAD));
         freeAddrDescriptor(localAD);
     }
@@ -23,11 +25,13 @@ char *generateCode(Function *functions)
 char *handleFunction(Function *function, AddrDescriptor *localAD)
 {
     currentFunc = function;
+    argCount = 0;
+    paramCount = 0;
     char *result = "";
     //TODO: implement
     for (Line *line = function->lines; line != NULL; line = line->next)
     {
-        outputLine(line);
+        //outputLine(line);
         result = concat(2, result, handleLine(line, localAD));
     }
     return result;
@@ -122,7 +126,7 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
                 char *regx, *regy;
                 char *temp1 = getReg(_1stNotation->content, &regx, localAD);
                 char *temp2 = getReg(_3rdNotation->content + 1, &regy, localAD);
-                result = concat(5, "  lw ", regx, "0(", regy, ")\n");
+                result = concat(5, "  lw ", regx, ", 0(", regy, ")\n");
                 result = concat(5, temp1, temp2, result, variableWriteBackToMemory(regx, localAD), variableWriteBackToMemory(regy, localAD));
             }
             // x := &y
@@ -208,11 +212,12 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
             {
                 if (_3rdNotation->content[0] == '#')
                 {
-                    char *regx, *regy;
+                    char *regx, *regy, *regz;
                     char *temp1 = getReg(_1stNotation->content, &regx, localAD);
-                    char *temp2 = getReg(_5thNotation->content, &regy, localAD);
-                    result = concat(7, "  addi ", regx, ", ", regy, ", -", _3rdNotation->content + 1, "\n");
-                    result = concat(5, temp1, temp2, result, variableWriteBackToMemory(regx, localAD), variableWriteBackToMemory(regy, localAD));
+                    char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                    char *temp3 = getReg(_5thNotation->content, &regz, localAD);
+                    result = concat(7, "  sub ", regx, ", ", regy, ", ", regz, "\n");
+                    result = concat(7, temp1, temp2, temp3, result, variableWriteBackToMemory(regx, localAD), variableWriteBackToMemory(regy, localAD), variableWriteBackToMemory(regz, localAD));
                 }
                 else if (_5thNotation->content[0] == '#')
                 {
@@ -231,12 +236,21 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
                     result = concat(7, "  sub ", regx, ", ", regy, ", ", regz, "\n");
                     result = concat(7, temp1, temp2, temp3, result, variableWriteBackToMemory(regx, localAD), variableWriteBackToMemory(regy, localAD), variableWriteBackToMemory(regz, localAD));
                 }
+
+                // char *regx, *regy, *regz;
+                //     char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                //     char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                //     char *temp3 = getReg(_5thNotation->content, &regz, localAD);
+                //     result = concat(7, "  sub ", regx, ", ", regy, ", ", regz, "\n");
+                //     result = concat(7, temp1, temp2, temp3, result, variableWriteBackToMemory(regx, localAD), variableWriteBackToMemory(regy, localAD), variableWriteBackToMemory(regz, localAD));
             }
         }
         // Var1 := call Function
         else if (numNotations(notations) == 4)
         {
             //result = "  TODO: var1 := call Function\n";
+            paramCount = 0;
+            argCount = 0;
             Notation *_1stNotation = getNotation(notations, 0); //Var1
             Notation *_4thNotation = getNotation(notations, 3); //Function
             char *regx;
@@ -271,6 +285,7 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
             char *space = (char *)malloc(20);
             memset(space, 0, 20);
             sprintf(space, "%d", currentFunc->spaceRequired);
+            cleanRegisters();
             result = concat(4, result, "  addi $sp, $sp, -", space, "\n");
         }
         // GOTO x
@@ -364,6 +379,60 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
                             "  addi $sp, $sp, 4\n"
                             );
             result = concat(3, temp1, result, variableWriteBackToMemory(regx, localAD));
+        }
+        // PARAM x
+        else if(strcmp("PARAM", _1stNotation->content) == 0)
+        {
+            Notation *_2ndNotation = getNotation(notations, 1); //x
+            if(paramCount < 12) //直接从$ai里取出数据，存入栈中
+            {
+                int index = paramCount;
+                paramCount ++;
+                int offset = getADItem(localAD, _2ndNotation->content)->offset;
+                bool useA = (index < 4);
+                if(useA)
+                {
+                    result = (char*)malloc(128);
+                    sprintf(result, "  sw $a%d, %d($sp)\n", index, offset);
+                }
+                else 
+                {
+                    result = (char*)malloc(128);
+                    sprintf(result, "  sw $s%d, %d($sp)\n", index-4, offset);
+                }
+            }
+            else { //放入栈中
+                //TODO: push arg 
+            }
+            
+        }
+        // Arg x
+        else if(strcmp("ARG", _1stNotation->content) == 0)
+        {
+            Notation *_2ndNotation = getNotation(notations, 1); //x
+            char* regx;
+            char* temp1 = getReg(_2ndNotation->content, &regx, localAD);
+            if(argCount < 12) //直接存到$ai里
+            {
+                int index = argCount;
+                argCount ++;
+                bool useA = (index < 4);
+                if(useA)
+                {
+                    result = (char*)malloc(128);
+                    sprintf(result, "  move $a%d, %s\n", index, regx);
+                }
+                else 
+                {
+                    result = (char*)malloc(128);
+                    sprintf(result, "  move $s%d, %s\n", index-4, regx);
+                }
+                result = concat(2, temp1, result);
+            }
+            else { //放入栈中
+                //TODO: push arg 
+            }
+
         }
 
     }

@@ -33,15 +33,20 @@ int isRever(int num) {
 int main(){
 	int N = 100, M = 110;
 	int ii = N;
-	while (ii < M) {
+	while(ii < M) {
 		if (isPrime(ii) == 1) {
 			write(ii);
 		}
+
 		if (isRever(ii) == 1) {
 			write(-ii);
 		}
+
 		ii = ii + 1;
 	}
+		
+		
+	
 	return 0;
 }
 
