@@ -13,8 +13,8 @@ char *generateCode(Function *functions)
     for (Function *f = functions; f != NULL; f = f->next)
     {
         AddrDescriptor *localAD = analyzeFunction(f);
-        outputFunction(f);
-        printAddrDescriptor(localAD);
+        //outputFunction(f);
+        //printAddrDescriptor(localAD);
         result = concat(2, result, handleFunction(f, localAD));
         freeAddrDescriptor(localAD);
     }
@@ -31,7 +31,7 @@ char *handleFunction(Function *function, AddrDescriptor *localAD)
     //TODO: implement
     for (Line *line = function->lines; line != NULL; line = line->next)
     {
-        outputLine(line);
+        //outputLine(line);
         result = concat(2, result, handleLine(line, localAD));
     }
     return result;
@@ -384,7 +384,7 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
         else if(strcmp("PARAM", _1stNotation->content) == 0)
         {
             Notation *_2ndNotation = getNotation(notations, 1); //x
-            if(argCount < 4) //直接从$ai里取出数据，存入栈中
+            if(paramCount < 4) //直接从$ai里取出数据，存入栈中
             {
                 int index = paramCount;
                 paramCount ++;

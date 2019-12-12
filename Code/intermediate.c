@@ -684,7 +684,7 @@ char *translateVarList(Morpheme *varList, HashSet *symTable)
     {
         char *code1 = translateParamDec(c, symTable);
         char *code2 = translateVarList(c->siblings->siblings, symTable);
-        char *code = concat(2, code1, code2);
+        char *code = concat(2, code2, code1);
         return code;
     }
     // VarList -> ParamDec
