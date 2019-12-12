@@ -384,13 +384,22 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
         else if(strcmp("PARAM", _1stNotation->content) == 0)
         {
             Notation *_2ndNotation = getNotation(notations, 1); //x
-            if(paramCount < 4) //直接从$ai里取出数据，存入栈中
+            if(paramCount < 12) //直接从$ai里取出数据，存入栈中
             {
                 int index = paramCount;
                 paramCount ++;
                 int offset = getADItem(localAD, _2ndNotation->content)->offset;
-                result = (char*)malloc(128);
-                sprintf(result, "  sw $a%d, %d($sp)\n", index, offset);
+                bool useA = (index < 4);
+                if(useA)
+                {
+                    result = (char*)malloc(128);
+                    sprintf(result, "  sw $a%d, %d($sp)\n", index, offset);
+                }
+                else 
+                {
+                    result = (char*)malloc(128);
+                    sprintf(result, "  sw $s%d, %d($sp)\n", index-4, offset);
+                }
             }
             else { //放入栈中
                 //TODO: push arg 
@@ -403,14 +412,21 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
             Notation *_2ndNotation = getNotation(notations, 1); //x
             char* regx;
             char* temp1 = getReg(_2ndNotation->content, &regx, localAD);
-            if(argCount < 4) //直接存到$ai里
+            if(argCount < 12) //直接存到$ai里
             {
                 int index = argCount;
                 argCount ++;
-                char buffer[20];
-                memset(buffer, 0, 20);
-                sprintf(buffer, "%d", index);
-                result = concat(6, "  move ", "$a", buffer, ", ", regx, "\n");
+                bool useA = (index < 4);
+                if(useA)
+                {
+                    result = (char*)malloc(128);
+                    sprintf(result, "  move $a%d, %s\n", index, regx);
+                }
+                else 
+                {
+                    result = (char*)malloc(128);
+                    sprintf(result, "  move $s%d, %s\n", index-4, regx);
+                }
                 result = concat(2, temp1, result);
             }
             else { //放入栈中

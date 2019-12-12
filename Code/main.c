@@ -20,7 +20,7 @@ extern Function* globolFunctions;
 int main(int argc, char **argv)
 {
     // if (argc <= 2)
-    if(argc <=1 ) //供测试用
+    if(argc <=2 ) //供测试用
     {
         printf("pass filename to scanner and output path\n");
         return -1;
@@ -59,7 +59,10 @@ int main(int argc, char **argv)
             globolFunctions = splitIntoFunctions(code);
             char* asmCode = generateCode(globolFunctions);
             //printf("-----------------------------------------------\n");
-            printf("%s", asmCode);
+            //printf("%s", asmCode);
+            FILE* output = fopen(argv[2], "w");
+            fprintf(output, "%s", asmCode);
+            fclose(output);
         }
         destructMorpheme(root);
         fclose(f);
