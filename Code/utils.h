@@ -28,5 +28,6 @@ void outputFunction(Function* f);
 void outputLine(Line* line);
 Notation* parserLine(char* content);
 Notation* createNotation(char* content);
+char* cloneString(char* str);
 
 #endif

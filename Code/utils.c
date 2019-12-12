@@ -8,6 +8,12 @@ int global_temp_num = 0;
 int global_variable_num = 0;
 int global_label_num = 0;
 
+char* cloneString(char* str) {
+    char* res = (char*) malloc(strlen(str) + 1);
+    strcpy(res, str);
+    return res;
+}
+
 char *concat(int n, ...)
 {
     va_list argp;

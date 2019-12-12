@@ -5,8 +5,21 @@
 #include "addrDescriptor.h"
 /*TODO: 数据结构设计*/
 
+typedef struct Register {
+    int index;
+    Notation* head;
+} Register;
 
+typedef struct RegDescriptor {
+    int index;
+    Register registers[8];
+} RegDescriptor;
 
-
+extern RegDescriptor* globalRegDescriptor;
 char* getReg(char* name, char** reg, AddrDescriptor* localAD);
+RegDescriptor* createRegDescriptor();
+bool isRegFree(Register* reg);
+char* saveRegister(Register* reg, AddrDescriptor* localAD);
+bool isInReg(Register* reg, char* name);
+char* writeBackReg(Register* reg, AddrDescriptor* localAD);
 #endif
