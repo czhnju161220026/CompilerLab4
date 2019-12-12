@@ -59,7 +59,7 @@ char *getReg(char *name, char **reg, AddrDescriptor *localAD)
     for (int i = 0; i < 8; i++)
     {
         Register *p_reg = &(globalRegDescriptor->registers[i]);
-        if (isRegFree(p_reg))
+        if (globalRegDescriptor->registers[i].head == NULL)
         {
             ADItem *adItem = getADItem(localAD, name);
             sprintf(str, "  lw $t%d, %d($sp)\n", p_reg->index, adItem->offset);
@@ -131,6 +131,7 @@ char *writeBackReg(Register *reg, AddrDescriptor *localAD)
     {
         char str[256];
         sprintf(str, "  sw $t%d, %d($sp)\n", reg->index, adItem->offset);
+        reg->head = NULL;
         char *code = cloneString(str);
         return code;
     }

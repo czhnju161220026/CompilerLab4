@@ -126,7 +126,7 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
                 char *regx, *regy;
                 char *temp1 = getReg(_1stNotation->content, &regx, localAD);
                 char *temp2 = getReg(_3rdNotation->content + 1, &regy, localAD);
-                result = concat(5, "  lw ", regx, "0(", regy, ")\n");
+                result = concat(5, "  lw ", regx, ", 0(", regy, ")\n");
                 result = concat(5, temp1, temp2, result, variableWriteBackToMemory(regx, localAD), variableWriteBackToMemory(regy, localAD));
             }
             // x := &y
@@ -212,11 +212,12 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
             {
                 if (_3rdNotation->content[0] == '#')
                 {
-                    char *regx, *regy;
+                    char *regx, *regy, *regz;
                     char *temp1 = getReg(_1stNotation->content, &regx, localAD);
-                    char *temp2 = getReg(_5thNotation->content, &regy, localAD);
-                    result = concat(7, "  addi ", regx, ", ", regy, ", -", _3rdNotation->content + 1, "\n");
-                    result = concat(5, temp1, temp2, result, variableWriteBackToMemory(regx, localAD), variableWriteBackToMemory(regy, localAD));
+                    char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                    char *temp3 = getReg(_5thNotation->content, &regz, localAD);
+                    result = concat(7, "  sub ", regx, ", ", regy, ", ", regz, "\n");
+                    result = concat(7, temp1, temp2, temp3, result, variableWriteBackToMemory(regx, localAD), variableWriteBackToMemory(regy, localAD), variableWriteBackToMemory(regz, localAD));
                 }
                 else if (_5thNotation->content[0] == '#')
                 {
@@ -235,6 +236,13 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
                     result = concat(7, "  sub ", regx, ", ", regy, ", ", regz, "\n");
                     result = concat(7, temp1, temp2, temp3, result, variableWriteBackToMemory(regx, localAD), variableWriteBackToMemory(regy, localAD), variableWriteBackToMemory(regz, localAD));
                 }
+
+                // char *regx, *regy, *regz;
+                //     char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                //     char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                //     char *temp3 = getReg(_5thNotation->content, &regz, localAD);
+                //     result = concat(7, "  sub ", regx, ", ", regy, ", ", regz, "\n");
+                //     result = concat(7, temp1, temp2, temp3, result, variableWriteBackToMemory(regx, localAD), variableWriteBackToMemory(regy, localAD), variableWriteBackToMemory(regz, localAD));
             }
         }
         // Var1 := call Function

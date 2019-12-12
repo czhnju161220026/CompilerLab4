@@ -6,7 +6,8 @@ int fact(int n)
     }
     else 
     {
-        return fact(n-1) * n;
+        int temp = fact(n-1);
+        return  temp * n;
     }
 }
 

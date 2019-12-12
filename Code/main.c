@@ -49,8 +49,8 @@ int main(int argc, char **argv)
             //outputHashSet(symbolTable);
             outputLog(SemanticError);
             char* code = translateProgram(root, symbolTable);
-            //printf("%s", code);
-            //printf("------------------------------------------------\n");
+            printf("%s", code);
+            printf("------------------------------------------------\n");
             // FILE* ir_code= fopen(argv[2], "w");
             // fprintf(ir_code, "%s", code);
             // fclose(ir_code);
