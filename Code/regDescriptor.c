@@ -57,6 +57,7 @@ char *getReg(char *name, char **reg, AddrDescriptor* localAD)
     globalRegDescriptor->index = (globalRegDescriptor->index + 1) % 8;
     //踢出旧值
     char* code1 = writeBackReg(p_reg, localAD);
+    cleanRegister(p_reg);
     //载入新值
     ADItem* adItem = getADItem(localAD, name);
     sprintf(str, "  lw $t%d, %d($sp)\n", p_reg->index, adItem->offset);
@@ -81,7 +82,6 @@ char* writeBackReg(Register* reg, AddrDescriptor* localAD) {
     if (adItem != NULL) {
         char str[256];
         sprintf(str, "  sw $t%d, %d($sp)\n", reg->index, adItem->offset);
-        reg->head = NULL;
         char* code = cloneString(str);
         return code;
     } else {
@@ -109,15 +109,8 @@ bool isRegFree(Register* reg) {
     }
 }
 
-char* saveRegister(Register* reg, AddrDescriptor* localAD) {
-    Notation* p = reg->head;
+void cleanRegister(Register* reg) {
     reg->head = NULL;
-    ADItem* adItem = getADItem(localAD, p->content);
-    char str[256];
-    sprintf(str, "  sw $t%d, %d($sp)\n", reg->index, adItem->offset);
-    char* code = (char*) malloc(strlen(str) + 1);
-    strcpy(code, str);
-    return code;
 }
 
 bool isInReg(Register* reg, char* name) {
@@ -125,4 +118,10 @@ bool isInReg(Register* reg, char* name) {
         return false;
     }
     return strcmp(reg->head->content, name) == 0;
+}
+
+char* variableWriteBackToMemory(char* name, AddrDescriptor* localAD) {
+    int index = name[2] - '0';
+    Register* p_reg = &(globalRegDescriptor->registers[index]);
+    return writeBackReg(p_reg, localAD);
 }

@@ -19,7 +19,8 @@ extern RegDescriptor* globalRegDescriptor;
 char* getReg(char* name, char** reg, AddrDescriptor* localAD);
 RegDescriptor* createRegDescriptor();
 bool isRegFree(Register* reg);
-char* saveRegister(Register* reg, AddrDescriptor* localAD);
 bool isInReg(Register* reg, char* name);
 char* writeBackReg(Register* reg, AddrDescriptor* localAD);
+void cleanRegister(Register* reg);
+char* variableWriteBackToMemory(char* name, AddrDescriptor* localAD);
 #endif
