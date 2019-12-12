@@ -58,6 +58,7 @@ int main(int argc, char **argv)
             // printAddrDescriptor(ad);
             globolFunctions = splitIntoFunctions(code);
             char* asmCode = generateCode(globolFunctions);
+            printf("-----------------------------------------------\n");
             printf("%s", asmCode);
         }
         destructMorpheme(root);
