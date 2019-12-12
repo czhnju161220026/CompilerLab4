@@ -241,6 +241,8 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
         else if (numNotations(notations) == 4)
         {
             //result = "  TODO: var1 := call Function\n";
+            paramCount = 0;
+            argCount = 0;
             Notation *_1stNotation = getNotation(notations, 0); //Var1
             Notation *_4thNotation = getNotation(notations, 3); //Function
             char *regx;
@@ -275,7 +277,7 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
             char *space = (char *)malloc(20);
             memset(space, 0, 20);
             sprintf(space, "%d", currentFunc->spaceRequired);
-            //TODO: clear
+            cleanRegisters();
             result = concat(4, result, "  addi $sp, $sp, -", space, "\n");
         }
         // GOTO x
@@ -376,8 +378,8 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
             Notation *_2ndNotation = getNotation(notations, 1); //x
             if(argCount < 4) //直接从$ai里取出数据，存入栈中
             {
-                int index = argCount;
-                argCount ++;
+                int index = paramCount;
+                paramCount ++;
                 int offset = getADItem(localAD, _2ndNotation->content)->offset;
                 result = (char*)malloc(128);
                 sprintf(result, "  sw $a%d, %d($sp)\n", index, offset);
