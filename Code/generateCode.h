@@ -13,4 +13,5 @@ char* handleFunction(Function* function, AddrDescriptor* localAD);
 char* handleLine(Line* line, AddrDescriptor* localAD); 
 Notation* getNotation(Notation* notation, int index);
 int numNotations(Notation* notation);
+char* appendExtra(char* result);
 #endif

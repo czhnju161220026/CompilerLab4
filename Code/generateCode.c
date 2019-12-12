@@ -1,5 +1,8 @@
 #include "generateCode.h"
 #include <stdlib.h>
+#include <stdio.h>
+
+Function *currentFunc = NULL;
 
 char *generateCode(Function *functions)
 {
@@ -7,17 +10,19 @@ char *generateCode(Function *functions)
     //TODO: implement
     for (Function *f = functions; f != NULL; f = f->next)
     {
-        AddrDescriptor* localAD = analyzeFunction(f);
+        AddrDescriptor *localAD = analyzeFunction(f);
         outputFunction(f);
         printAddrDescriptor(localAD);
         result = concat(2, result, handleFunction(f, localAD));
         freeAddrDescriptor(localAD);
     }
+    result = appendExtra(result);
     return result;
 }
 
-char *handleFunction(Function *function, AddrDescriptor* localAD)
+char *handleFunction(Function *function, AddrDescriptor *localAD)
 {
+    currentFunc = function;
     char *result = "";
     //TODO: implement
     for (Line *line = function->lines; line != NULL; line = line->next)
@@ -27,41 +32,41 @@ char *handleFunction(Function *function, AddrDescriptor* localAD)
     }
     return result;
 }
- 
 
 // 分析函数function
 //     1） 给出function所需要的所有变量的总空间大小
 //     2） 依照每个变量出现的先后次序，设置变量在栈中相对栈顶的偏移量
-AddrDescriptor* analyzeFunction(Function* function)
+AddrDescriptor *analyzeFunction(Function *function)
 {
     int spaceRequired = 0;
-    AddrDescriptor* localAD = initAddrDescriptor(HASH_SIZE);
-    for(Line* line = function->lines; line != NULL; line = line->next)
+    AddrDescriptor *localAD = initAddrDescriptor(HASH_SIZE);
+    for (Line *line = function->lines; line != NULL; line = line->next)
     {
-        Notation* notations = line->notations;
-        Notation* _1stNotation = getNotation(notations, 0);
-        if(strcmp("DEC", _1stNotation->content) == 0)
+        Notation *notations = line->notations;
+        Notation *_1stNotation = getNotation(notations, 0);
+        if (strcmp("DEC", _1stNotation->content) == 0)
         {
-            Notation* _2ndNotation = getNotation(notations, 1);
-            Notation* _3rdNotation = getNotation(notations, 2);
+            Notation *_2ndNotation = getNotation(notations, 1);
+            Notation *_3rdNotation = getNotation(notations, 2);
             int space = atoi(_3rdNotation->content);
-            ADItem* item = createAdItem(_2ndNotation->content);
+            ADItem *item = createAdItem(_2ndNotation->content);
             setOffset(item, spaceRequired);
             spaceRequired += space;
             aDInsert(localAD, item);
         }
-        else if(strcmp("PARAM", _1stNotation->content) == 0){
-            Notation* _2ndNotation = getNotation(notations, 1);
-            ADItem* item = createAdItem(_2ndNotation->content);
+        else if (strcmp("PARAM", _1stNotation->content) == 0)
+        {
+            Notation *_2ndNotation = getNotation(notations, 1);
+            ADItem *item = createAdItem(_2ndNotation->content);
             setOffset(item, spaceRequired);
             spaceRequired += 4;
             aDInsert(localAD, item);
         }
-        else if(_1stNotation->content[0] == 't' || _1stNotation->content[0] == 'v')
+        else if (_1stNotation->content[0] == 't' || _1stNotation->content[0] == 'v')
         {
-            if(!aDContains(localAD, _1stNotation->content))
+            if (!aDContains(localAD, _1stNotation->content))
             {
-                ADItem* item = createAdItem(_1stNotation->content);
+                ADItem *item = createAdItem(_1stNotation->content);
                 setOffset(item, spaceRequired);
                 spaceRequired += 4;
                 aDInsert(localAD, item);
@@ -72,14 +77,12 @@ AddrDescriptor* analyzeFunction(Function* function)
     return localAD;
 }
 
-
-
-char *handleLine(Line *line, AddrDescriptor* localAD)
+char *handleLine(Line *line, AddrDescriptor *localAD)
 {
-    char *result="";
+    char *result = "";
     //TODO: implement
     Notation *notations = line->notations;
-    
+
     Notation *_2ndNotation = getNotation(notations, 1);
     if (strcmp(_2ndNotation->content, ":=") == 0)
     {
@@ -92,8 +95,8 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
             if (_1stNotation->content[0] == '*')
             {
                 char *regx, *regy;
-                char* temp1 = getReg(_1stNotation->content + 1, &regx, localAD);
-                char* temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                char *temp1 = getReg(_1stNotation->content + 1, &regx, localAD);
+                char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
                 result = concat(5, "  sw ", regy, ", 0(", regx, ")\n");
                 result = concat(3, temp1, temp2, result);
             }
@@ -101,7 +104,7 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
             else if (_3rdNotation->content[0] == '#')
             {
                 char *regx;
-                char* temp1 = getReg(_1stNotation->content, &regx, localAD);
+                char *temp1 = getReg(_1stNotation->content, &regx, localAD);
                 result = concat(5, "  li ", regx, ", ", _3rdNotation->content + 1, "\n");
                 result = concat(2, temp1, result);
             }
@@ -109,8 +112,8 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
             else if (_3rdNotation->content[0] == '*')
             {
                 char *regx, *regy;
-                char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                char* temp2 = getReg(_3rdNotation->content + 1, &regy, localAD);
+                char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                char *temp2 = getReg(_3rdNotation->content + 1, &regy, localAD);
                 result = concat(5, "  lw ", regx, "0(", regy, ")\n");
                 result = concat(3, temp1, temp2, result);
             }
@@ -118,19 +121,19 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
             else if (_3rdNotation->content[0] == '&')
             {
                 char *regx, *regy;
-                char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                ADItem* item = getADItem(localAD, _3rdNotation->content + 1);
+                char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                ADItem *item = getADItem(localAD, _3rdNotation->content + 1);
                 char temp[16];
                 sprintf(temp, "%d", item->offset);
-                result = concat(6,"  addi ", regx, ", ", "$sp, ", temp, "\n");
+                result = concat(6, "  addi ", regx, ", ", "$sp, ", temp, "\n");
                 result = concat(2, temp1, result);
             }
             // x := y
             else
             {
                 char *regx, *regy;
-                char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                char* temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
                 result = concat(5, "  move ", regx, ", ", regy, "\n");
                 result = concat(3, temp1, temp2, result);
             }
@@ -145,75 +148,79 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
             Notation *_4thNotation = getNotation(notations, 3); // op
             Notation *_5thNotation = getNotation(notations, 4); // Var3
             // Var1 := Var2 * Var3
-            if(strcmp(_4thNotation->content, "*") == 0 )
+            if (strcmp(_4thNotation->content, "*") == 0)
             {
                 char *regx, *regy, *regz;
-                char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                char* temp2 = getReg(_3rdNotation->content, &regy, localAD);
-                char* temp3 = getReg(_5thNotation->content, &regz, localAD);
-                result = concat(7,"  mul ", regx, ", ", regy, ", ", regz, "\n");
+                char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                char *temp3 = getReg(_5thNotation->content, &regz, localAD);
+                result = concat(7, "  mul ", regx, ", ", regy, ", ", regz, "\n");
                 result = concat(4, temp1, temp2, temp3, result);
             }
             // // Var1 := Var2 / Var3
-            else if(strcmp(_4thNotation->content, "/") == 0)
+            else if (strcmp(_4thNotation->content, "/") == 0)
             {
                 char *regx, *regy, *regz;
-                char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                char* temp2 = getReg(_3rdNotation->content, &regy, localAD);
-                char* temp3 = getReg(_5thNotation->content, &regz, localAD);
+                char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                char *temp3 = getReg(_5thNotation->content, &regz, localAD);
                 result = concat(7, "  div ", regy, ", ", regz, "\n  mflo ", regx, "\n");
                 result = concat(4, temp1, temp2, temp3, result);
             }
             // Var1 := Var2 + Var3
-            else if(strcmp(_4thNotation->content, "+") == 0){
-                if(_3rdNotation->content[0] == '#')
+            else if (strcmp(_4thNotation->content, "+") == 0)
+            {
+                if (_3rdNotation->content[0] == '#')
                 {
-                    char* regx, *regy;
-                    char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                    char* temp2 = getReg(_5thNotation->content, &regy, localAD);
-                    result = concat(7,"  addi ", regx, ", ", regy, ", ", _3rdNotation->content + 1, "\n");
+                    char *regx, *regy;
+                    char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                    char *temp2 = getReg(_5thNotation->content, &regy, localAD);
+                    result = concat(7, "  addi ", regx, ", ", regy, ", ", _3rdNotation->content + 1, "\n");
                     result = concat(3, temp1, temp2, result);
                 }
-                else if(_5thNotation->content[0] == '#')
+                else if (_5thNotation->content[0] == '#')
                 {
-                    char* regx, *regy;
-                    char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                    char* temp2 = getReg(_3rdNotation->content, &regy, localAD);
-                    result = concat(7,"  addi ", regx, ", ", regy, ", ", _5thNotation->content + 1, "\n");
+                    char *regx, *regy;
+                    char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                    char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                    result = concat(7, "  addi ", regx, ", ", regy, ", ", _5thNotation->content + 1, "\n");
                     result = concat(3, temp1, temp2, result);
                 }
-                else {
+                else
+                {
                     char *regx, *regy, *regz;
-                    char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                    char* temp2 = getReg(_3rdNotation->content, &regy, localAD);
-                    char* temp3 = getReg(_5thNotation->content, &regz, localAD);
-                    result = concat(7,"  add ", regx, ", ", regy, ", ", regz, "\n");
+                    char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                    char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                    char *temp3 = getReg(_5thNotation->content, &regz, localAD);
+                    result = concat(7, "  add ", regx, ", ", regy, ", ", regz, "\n");
                     result = concat(4, temp1, temp2, temp3, result);
                 }
             }
-            else if(strcmp(_4thNotation->content, "-") == 0){
-                if(_3rdNotation->content[0] == '#')
+            else if (strcmp(_4thNotation->content, "-") == 0)
+            {
+                if (_3rdNotation->content[0] == '#')
                 {
-                    char* regx, *regy;
-                    char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                    char* temp2 = getReg(_5thNotation->content, &regy, localAD);
-                    result = concat(7,"  addi ", regx, ", ", regy, ", -", _3rdNotation->content + 1, "\n");
+                    char *regx, *regy;
+                    char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                    char *temp2 = getReg(_5thNotation->content, &regy, localAD);
+                    result = concat(7, "  addi ", regx, ", ", regy, ", -", _3rdNotation->content + 1, "\n");
                     result = concat(3, temp1, temp2, result);
                 }
-                else if(_5thNotation->content[0] == '#')
+                else if (_5thNotation->content[0] == '#')
                 {
-                    char* regx, *regy;
-                    char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                    char* temp2 = getReg(_3rdNotation->content, &regy, localAD);
-                    result = concat(7,"  addi ", regx, ", ", regy, ", -", _5thNotation->content + 1, "\n");
+                    char *regx, *regy;
+                    char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                    char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                    result = concat(7, "  addi ", regx, ", ", regy, ", -", _5thNotation->content + 1, "\n");
                     result = concat(3, temp1, temp2, result);
                 }
-                else {
+                else
+                {
                     char *regx, *regy, *regz;
-                    char* temp1 = getReg(_1stNotation->content, &regx, localAD);
-                    char* temp2 = getReg(_3rdNotation->content, &regy, localAD);
-                    char* temp3 = getReg(_5thNotation->content, &regz, localAD);
-                    result = concat(7,"  sub ", regx, ", ", regy, ", ", regz, "\n");
+                    char *temp1 = getReg(_1stNotation->content, &regx, localAD);
+                    char *temp2 = getReg(_3rdNotation->content, &regy, localAD);
+                    char *temp3 = getReg(_5thNotation->content, &regz, localAD);
+                    result = concat(7, "  sub ", regx, ", ", regy, ", ", regz, "\n");
                     result = concat(4, temp1, temp2, temp3, result);
                 }
             }
@@ -224,8 +231,8 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
             //result = "  TODO: ar1 := call Function\n";
             Notation *_1stNotation = getNotation(notations, 0); //Var1
             Notation *_4thNotation = getNotation(notations, 3); //Function
-            char* regx;
-            char* temp1 = getReg(_1stNotation->content, &regx, localAD);
+            char *regx;
+            char *temp1 = getReg(_1stNotation->content, &regx, localAD);
             result = concat(5, "  jal ", _4thNotation->content, "\n  move ", regx, ", $v0\n");
             result = concat(2, temp1, result);
         }
@@ -234,16 +241,27 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
     {
         Notation *_1stNotation = getNotation(notations, 0);
         // Label x
-        if (strcmp(_1stNotation->content, "LABEL") == 0 || strcmp(_1stNotation->content, "FUNCTION") == 0)
+        if (strcmp(_1stNotation->content, "LABEL") == 0)
         {
-            result = (char *)malloc(strlen(_2ndNotation->content)+1);
+            result = (char *)malloc(strlen(_2ndNotation->content) + 1);
             strcpy(result, _2ndNotation->content);
             result = concat(2, result, ":\n");
+        }
+        // Function f
+        if (strcmp(_1stNotation->content, "FUNCTION") == 0)
+        {
+            result = (char *)malloc(strlen(_2ndNotation->content) + 1);
+            strcpy(result, _2ndNotation->content);
+            result = concat(2, result, ":\n");
+            char *space = (char *)malloc(20);
+            memset(space, 0, 20);
+            sprintf(space, "%d", currentFunc->spaceRequired);
+            result = concat(4, result, "  addi $sp, $sp, -", space, "\n");
         }
         // GOTO x
         else if (strcmp(_1stNotation->content, "GOTO") == 0)
         {
-            result = (char *)malloc(strlen(_2ndNotation->content)+1);
+            result = (char *)malloc(strlen(_2ndNotation->content) + 1);
             strcpy(result, _2ndNotation->content);
             result = concat(3, "  j ", result, "\n");
         }
@@ -251,18 +269,14 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
         else if (strcmp(_1stNotation->content, "RETURN") == 0)
         {
             char *ret = _2ndNotation->content;
-            if (ret[0] == '#') //返回立即数
-            {
-                result = concat(3, "  move $v0, ", ret + 1, "\n  jr $ra\n");
-            }
-            else
-            {
-                //TODO
-                char *reg = "";
-                char* temp1 = getReg(ret, &reg, localAD);
-                result = concat(3, "  move $v0, ", reg, "\n  jr $ra\n");
-                result = concat(2, temp1, result);
-            }
+            char *space = (char *)malloc(20);
+            memset(space, 0, 20);
+            sprintf(space, "%d", currentFunc->spaceRequired);
+            char *reg = "";
+            char *temp1 = getReg(ret, &reg, localAD);
+            result = concat(3, "  move $v0, ", reg, "\n  jr $ra\n");
+            result = concat(4, "  addi $sp, $sp, ", space, "\n", result);
+            result = concat(2, temp1, result);
         }
         // IF x relop y GOTO z
         else if (strcmp(_1stNotation->content, "IF") == 0)
@@ -300,8 +314,8 @@ char *handleLine(Line *line, AddrDescriptor* localAD)
             }
 
             char *regx, *regy;
-            char* temp1 = getReg(_2ndNotation->content, &regx, localAD);
-            char* temp2 = getReg(_4thNotation->content, &regy, localAD);
+            char *temp1 = getReg(_2ndNotation->content, &regx, localAD);
+            char *temp2 = getReg(_4thNotation->content, &regy, localAD);
             result = concat(7, branch, regx, ", ", regy, ", ", _6thNotation->content, "\n");
             result = concat(3, temp1, temp2, result);
         }
@@ -334,4 +348,12 @@ int numNotations(Notation *notation)
         n++;
     }
     return n;
+}
+
+char *appendExtra(char *result)
+{
+    char *extra = concat(3, ".data\n",
+                         ".globl main\n",
+                         ".text\n");
+    return concat(2, extra, result);
 }
