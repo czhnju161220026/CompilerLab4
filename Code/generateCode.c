@@ -236,13 +236,20 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
         // Var1 := call Function
         else if (numNotations(notations) == 4)
         {
-            //result = "  TODO: ar1 := call Function\n";
+            //result = "  TODO: var1 := call Function\n";
             Notation *_1stNotation = getNotation(notations, 0); //Var1
             Notation *_4thNotation = getNotation(notations, 3); //Function
             char *regx;
             char *temp1 = getReg(_1stNotation->content, &regx, localAD);
             result = concat(5, "  jal ", _4thNotation->content, "\n  move ", regx, ", $v0\n");
+            result = concat(5,
+                            "  addi $sp, $sp, -4\n",
+                            "  sw $ra, 0($sp)\n",
+                            result,
+                            "  lw $ra, 0($sp)\n",
+                            "  addi $sp, $sp, 4\n");
             result = concat(3, temp1, result, variableWriteBackToMemory(regx, localAD));
+
         }
     }
     else
