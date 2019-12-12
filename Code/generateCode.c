@@ -62,6 +62,14 @@ AddrDescriptor *analyzeFunction(Function *function)
             spaceRequired += 4;
             aDInsert(localAD, item);
         }
+        else if (strcmp("READ", _1stNotation->content) == 0)
+        {
+            Notation *_2ndNotation = getNotation(notations, 1);
+            ADItem *item = createAdItem(_2ndNotation->content);
+            setOffset(item, spaceRequired);
+            spaceRequired += 4;
+            aDInsert(localAD, item);
+        }
         else if (_1stNotation->content[0] == 't' || _1stNotation->content[0] == 'v')
         {
             if (!aDContains(localAD, _1stNotation->content))
@@ -319,6 +327,38 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
             result = concat(7, branch, regx, ", ", regy, ", ", _6thNotation->content, "\n");
             result = concat(3, temp1, temp2, result);
         }
+        // READ x
+        else if(strcmp("READ", _1stNotation->content) == 0)
+        {
+            Notation *_2ndNotation = getNotation(notations, 1); //x
+            char* regx;
+            char* temp1 = getReg(_2ndNotation->content, &regx, localAD);
+            result = concat(8, 
+                            "  addi $sp, $sp, -4\n",
+                            "  sw $ra, 0($sp)\n",
+                            "  jal read\n",
+                            "  lw $ra, 0($sp)\n",
+                            "  addi $sp, $sp, 4\n",
+                            "  move ", regx, ", $v0\n");
+            result = concat(2, temp1, result);
+        }
+        // Write x
+        else if(strcmp("WRITE", _1stNotation->content) == 0)
+        {
+            Notation *_2ndNotation = getNotation(notations, 1); //x
+            char* regx;
+            char* temp1 = getReg(_2ndNotation->content, &regx, localAD);
+            result = concat(8,
+                            "  move $a0, ", regx, "\n",
+                            "  addi $sp, $sp, -4\n",
+                            "  sw $ra, 0($sp)\n",
+                            "  jal write\n",
+                            "  lw $ra, 0($sp)\n",
+                            "  addi $sp, $sp, 4\n"
+                            );
+            result = concat(2, temp1, result);
+        }
+
     }
     return result;
 }
@@ -352,8 +392,29 @@ int numNotations(Notation *notation)
 
 char *appendExtra(char *result)
 {
-    char *extra = concat(3, ".data\n",
-                         ".globl main\n",
-                         ".text\n");
+    char *extra = concat(22, 
+                        ".data\n",
+                        "_prompt: .asciiz \"Enter an integer:\"\n",
+                        "_ret: .asciiz \"\\n\"\n",
+                        ".globl main\n",
+                        ".text\n",
+                        "read:\n",
+                        "  li $v0, 4\n",
+                        "  la $a0, _prompt\n",
+                        "  syscall\n",
+                        "  li $v0, 5\n",
+                        "  syscall\n",
+                        "  jr $ra\n",
+                        "\n",
+                        "write:\n",
+                        "  li $v0, 1\n",
+                        "  syscall\n",
+                        "  li $v0, 4\n",
+                        "  la $a0, _ret\n",
+                        "  syscall\n",
+                        "  move $v0, $0\n",
+                        "  jr $ra\n",
+                        "\n"  
+                        );
     return concat(2, extra, result);
 }
