@@ -1,4 +1,5 @@
-int main() {
+int fact()
+{
     int n = read();
     int i = 1;
     int result = 1;
@@ -6,6 +7,12 @@ int main() {
         i = i + 1;
         result = result * i; 
     }
-    write(result);
     return result;
+}
+
+int main() {
+    int x;
+    x = fact();
+    write(x);
+    return x;
 }

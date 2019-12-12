@@ -30,8 +30,6 @@ void freeAddrDescriptor(AddrDescriptor* ad) {
     {
         buckets[i].head = NULL;
     }
-    free(ad->buckets);
-    free(ad);
 }
 
 //一个表项的构造函数
