@@ -30,7 +30,17 @@ char *getReg(char *name, char **reg, AddrDescriptor *localAD)
         ADItem *adItem = getADItem(localAD, name + 1);
         sprintf(str, "  lw $t9, %d($sp)\n", adItem->offset);
         code = cloneString(str);
-        
+        int index = selectReg();
+        sprintf(str, "  lw $t%d, 0($t9)\n", index);
+        code = concat(2, code, str);
+        targetReg[2] = '0' + index;
+        *reg = cloneString(targetReg);
+        Notation *notation = (Notation *)malloc(sizeof(Notation));
+        notation->content = cloneString(name);
+        notation->next = NULL;
+        Register *p_reg = &(globalRegDescriptor->registers[index]);
+        p_reg->head = notation;
+        return code;
     }
 
     //如果这个变量已经在寄存器里，直接返回该寄存器
@@ -88,6 +98,29 @@ char *getReg(char *name, char **reg, AddrDescriptor *localAD)
     *reg = (char *)malloc(strlen(temp) + 1);
     strcpy(*reg, temp);
     return "";
+}
+
+int selectReg() {
+    char *code;
+    char str[256];
+    for (int i = 0; i < 8; i++)
+    {
+        Register *p_reg = &(globalRegDescriptor->registers[i]);
+        if (isRegFree(p_reg))
+        {
+            return i;
+        }
+    }
+
+    //踢出一个寄存器里的变量，载入该变量
+    Register *p_reg = &(globalRegDescriptor->registers[globalRegDescriptor->index]);
+    int i = globalRegDescriptor->index;
+    globalRegDescriptor->index = (globalRegDescriptor->index + 1) % 8;
+    //踢出旧值
+    // char *code1 = writeBackReg(p_reg, localAD);
+    cleanRegister(p_reg);
+    
+    return i;
 }
 
 char *writeBackReg(Register *reg, AddrDescriptor *localAD)

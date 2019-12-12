@@ -24,4 +24,5 @@ char* writeBackReg(Register* reg, AddrDescriptor* localAD);
 void cleanRegister(Register* reg);
 char* variableWriteBackToMemory(char* name, AddrDescriptor* localAD);
 void cleanRegisters();
+int selectReg();
 #endif
