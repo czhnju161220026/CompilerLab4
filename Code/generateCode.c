@@ -14,7 +14,7 @@ char *generateCode(Function *functions)
         outputFunction(f);
         printAddrDescriptor(localAD);
         result = concat(2, result, handleFunction(f, localAD));
-        //freeAddrDescriptor(localAD);
+        freeAddrDescriptor(localAD);
     }
     result = appendExtra(result);
     return result;

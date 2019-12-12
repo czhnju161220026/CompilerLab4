@@ -8,8 +8,9 @@ int global_temp_num = 0;
 int global_variable_num = 0;
 int global_label_num = 0;
 
-char* cloneString(char* str) {
-    char* res = (char*) malloc(strlen(str) + 1);
+char *cloneString(char *str)
+{
+    char *res = (char *)malloc(strlen(str) + 1);
     strcpy(res, str);
     return res;
 }
@@ -28,8 +29,8 @@ char *concat(int n, ...)
         }
     }
     va_end(argp);
-    char *str = (char *)malloc(length + 1);
-    memset(str, length, 0);
+    char *str = (char *)malloc(length + n + n);
+    memset(str, 0, length + n + n);
     va_start(argp, n);
     for (int i = 0; i < n; i++)
     {
@@ -91,7 +92,7 @@ Function *splitIntoFunctions(char *code)
                     function = (Function *)malloc(sizeof(Function));
                     tail = function;
                     function->lines = (Line *)malloc(sizeof(Line));
-                    function->lines->content = (char *)malloc(strlen(line)+1);
+                    function->lines->content = (char *)malloc(strlen(line) + 1);
                     strcpy(function->lines->content, line);
                     currentFunction = function->lines;
                 }
@@ -101,7 +102,7 @@ Function *splitIntoFunctions(char *code)
                     tail->next = newFunction;
                     tail = newFunction;
                     newFunction->lines = (Line *)malloc(sizeof(Line));
-                    newFunction->lines->content = (char *)malloc(strlen(line)+1);
+                    newFunction->lines->content = (char *)malloc(strlen(line) + 1);
                     strcpy(newFunction->lines->content, line);
                     currentFunction = newFunction->lines;
                 }
@@ -109,7 +110,7 @@ Function *splitIntoFunctions(char *code)
             else
             {
                 Line *newLine = (Line *)malloc(sizeof(Line));
-                newLine->content = (char *)malloc(strlen(line)+1);
+                newLine->content = (char *)malloc(strlen(line) + 1);
                 strcpy(newLine->content, line);
                 currentFunction->next = newLine;
                 currentFunction = newLine;
@@ -118,7 +119,7 @@ Function *splitIntoFunctions(char *code)
         else
         {
             Line *newLine = (Line *)malloc(sizeof(Line));
-            newLine->content = (char *)malloc(strlen(line)+1);
+            newLine->content = (char *)malloc(strlen(line) + 1);
             strcpy(newLine->content, line);
             currentFunction->next = newLine;
             currentFunction = newLine;
