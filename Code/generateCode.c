@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 Function *currentFunc = NULL;
+int argCount = 0;
+int paramCount = 0;
 
 char *generateCode(Function *functions)
 {
@@ -23,6 +25,8 @@ char *generateCode(Function *functions)
 char *handleFunction(Function *function, AddrDescriptor *localAD)
 {
     currentFunc = function;
+    argCount = 0;
+    paramCount = 0;
     char *result = "";
     //TODO: implement
     for (Line *line = function->lines; line != NULL; line = line->next)
@@ -271,6 +275,7 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
             char *space = (char *)malloc(20);
             memset(space, 0, 20);
             sprintf(space, "%d", currentFunc->spaceRequired);
+            //TODO: clear
             result = concat(4, result, "  addi $sp, $sp, -", space, "\n");
         }
         // GOTO x
@@ -364,6 +369,44 @@ char *handleLine(Line *line, AddrDescriptor *localAD)
                             "  addi $sp, $sp, 4\n"
                             );
             result = concat(3, temp1, result, variableWriteBackToMemory(regx, localAD));
+        }
+        // PARAM x
+        else if(strcmp("PARAM", _1stNotation->content) == 0)
+        {
+            Notation *_2ndNotation = getNotation(notations, 1); //x
+            if(argCount < 4) //直接从$ai里取出数据，存入栈中
+            {
+                int index = argCount;
+                argCount ++;
+                int offset = getADItem(localAD, _2ndNotation->content)->offset;
+                result = (char*)malloc(128);
+                sprintf(result, "  sw $a%d, %d($sp)\n", index, offset);
+            }
+            else { //放入栈中
+                //TODO: push arg 
+            }
+            
+        }
+        // Arg x
+        else if(strcmp("ARG", _1stNotation->content) == 0)
+        {
+            Notation *_2ndNotation = getNotation(notations, 1); //x
+            char* regx;
+            char* temp1 = getReg(_2ndNotation->content, &regx, localAD);
+            if(argCount < 4) //直接存到$ai里
+            {
+                int index = argCount;
+                argCount ++;
+                char buffer[20];
+                memset(buffer, 0, 20);
+                sprintf(buffer, "%d", index);
+                result = concat(6, "  move ", "$a", buffer, ", ", regx, "\n");
+                result = concat(2, temp1, result);
+            }
+            else { //放入栈中
+                //TODO: push arg 
+            }
+
         }
 
     }
